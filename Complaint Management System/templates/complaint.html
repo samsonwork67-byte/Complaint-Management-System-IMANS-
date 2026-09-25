@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complaint Centre – Integrity & Governance Portal</title>
+  <meta name="description"
+    content="Submit a complaint or report misconduct securely through the Integrity & Governance Portal's Complaint and Whistleblowing Centre.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+  <!-- ==========================================
+       HEADER & NAVIGATION
+       ========================================== -->
+  <header class="header" id="header">
+    <div class="container">
+      <a href="index.html" class="logo">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 16l-4-4 1.41-1.41L11 14.17l6.59-6.59L19 9l-8 8z" />
+        </svg>
+        IMANS
+      </a>
+      <nav>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="{{ url_for('landing') }}#home" class="nav-link">Home</a></li>
+          <li><a href="{{ url_for('landing') }}#governance" class="nav-link">Governance</a></li>
+          <li><a href="{{ url_for('landing') }}#integrity" class="nav-link">Integrity Strengthening</a></li>
+          <li><a href="{{ url_for('landing') }}#resources" class="nav-link">Resources</a></li>
+          <li><a href="{{ url_for('landing') }}#contact" class="nav-link">Contact</a></li>
+          <div class="nav-links">
+            {% if is_admin %}
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary">Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+            {% else %}
+            <a href="{{ url_for('login') }}" class="btn btn-primary">Admin Login</a>
+            {% endif %}
+          </div>
+        </ul>
+
+      </nav>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==========================================
+       COMPLAINT HERO
+       ========================================== -->
+  <section class="hero" id="complaintHero" style="padding: 140px 0 80px 0;">
+    <div class="container" style="text-align: center;">
+      <h1 style="font-size: 3rem; color: #fff; margin-bottom: 16px;">Complaint & Whistleblowing Centre</h1>
+      <p class="hero-subtitle" style="max-width: 700px; margin: 0 auto 16px auto; font-size: 1.25rem;">
+        A secure and confidential channel for reporting misconduct, fraud, and unethical behaviour.
+      </p>
+      <p class="hero-desc" style="max-width: 650px; margin: 0 auto; text-align: center;">
+        All complaints are treated with the utmost confidentiality. Whistleblower protection mechanisms are in place in
+        accordance with organisational policy and applicable law.
+      </p>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       COMPLAINT FORM & TRACKING
+       ========================================== -->
+  <section style="padding: 80px 0 100px 0;">
+    <div class="container">
+      <div class="complaint-layout">
+        <!-- LEFT: Complaint Submission Form -->
+        <div class="form-card reveal">
+          <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Submit a Complaint</h3>
+          <p style="color: var(--text-medium); margin-bottom: 32px; font-size: 0.95rem;">Provide the details of your
+            complaint below. Fields marked with <span style="color:var(--danger);">*</span> are required.</p>
+
+          <form id="complaintForm">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <!-- Your Name -->
+            <div class="form-group">
+              <label for="compName">Your Full Name <span style="color:var(--danger);">*</span></label>
+              <input type="text" id="compName" class="form-control" placeholder="Enter your full name" required>
+            </div>
+
+            <!-- Email Address -->
+            <div class="form-group">
+              <label for="compEmail">Your Email Address <span style="color:var(--danger);">*</span></label>
+              <input type="email" id="compEmail" class="form-control" placeholder="Enter your email address" required>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="form-group">
+              <label for="compPhone">Your Phone Number</label>
+              <input type="tel" id="compPhone" class="form-control" placeholder="E.g. +60 12-345 6789">
+            </div>
+
+            <hr style="border:none; border-top:1px solid var(--border-color); margin: 28px 0;">
+            <p style="font-weight:600; font-size:1rem; margin-bottom:20px; color:var(--primary-dark);">Details of the
+              Accused</p>
+
+            <!-- Name of The Accused -->
+            <div class="form-group">
+              <label for="compAccused">Name of The Accused <span style="color:var(--danger);">*</span></label>
+              <input type="text" id="compAccused" class="form-control" placeholder="Enter the name of the accused"
+                required>
+            </div>
+
+            <!-- Position of The Accused -->
+            <div class="form-group">
+              <label for="compPosition">Position of The Accused</label>
+              <input type="text" id="compPosition" class="form-control" placeholder="E.g. Manager, Director">
+            </div>
+
+            <!-- Company of The Accused -->
+            <div class="form-group">
+              <label for="compCompany">Unit/Division of The Accused</label>
+              <input type="text" id="compCompany" class="form-control" placeholder="Enter the unit/division name">
+            </div>
+
+            <hr style="border:none; border-top:1px solid var(--border-color); margin: 28px 0;">
+            <p style="font-weight:600; font-size:1rem; margin-bottom:20px; color:var(--primary-dark);">Incident
+              Information</p>
+
+            <!-- Type of Complaint -->
+            <div class="form-group">
+              <label for="compCategory">Type of Complaint <span style="color:var(--danger);">*</span></label>
+              <select id="compCategory" class="form-control" required>
+                <option value="" disabled selected>Select a category</option>
+                <option value="Bribery & Corruption">Bribery & Corruption</option>
+                <option value="Fraud">Fraud</option>
+                <option value="Misconduct">Misconduct</option>
+                <option value="Conflict of Interest">Conflict of Interest</option>
+                <option value="Abuse of Power">Abuse of Power</option>
+                <option value="Harassment">Harassment</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <!-- Date of Incident -->
+            <div class="form-group">
+              <label for="compIncidentDate">Date of Incident <span style="color:var(--danger);">*</span></label>
+              <input type="date" id="compIncidentDate" class="form-control" required>
+            </div>
+
+            <!-- Time of Incident -->
+            <div class="form-group">
+              <label for="compIncidentTime">Time of Incident (General)</label>
+              <select id="compIncidentTime" class="form-control">
+                <option value="" disabled selected>Select a general time</option>
+                <option value="Morning (6am - 12pm)">Morning (6am - 12pm)</option>
+                <option value="Afternoon (12pm - 6pm)">Afternoon (12pm - 6pm)</option>
+                <option value="Evening (6pm - 9pm)">Evening (6pm - 9pm)</option>
+                <option value="Night (9pm - 6am)">Night (9pm - 6am)</option>
+                <option value="Unknown">Unknown</option>
+              </select>
+            </div>
+
+            <!-- Location of Incident -->
+            <div class="form-group">
+              <label for="compLocation">Location of Incident</label>
+              <input type="text" id="compLocation" class="form-control" placeholder="E.g. Office, Branch name, City">
+            </div>
+
+            <!-- Details of Complaint -->
+            <div class="form-group">
+              <label for="compDetails">Details of Complaint <span style="color:var(--danger);">*</span></label>
+              <textarea id="compDetails" class="form-control"
+                placeholder="Provide a detailed description of the complaint, including dates, individuals involved, and any relevant context."
+                required></textarea>
+            </div>
+
+            <!-- Other Involved Parties -->
+            <div class="form-group">
+              <label for="compOtherParties">Other Involved Parties (If applicable)</label>
+              <textarea id="compOtherParties" class="form-control"
+                placeholder="List any other individuals or parties involved in the incident."></textarea>
+            </div>
+
+            <!-- File Upload -->
+            <div class="form-group">
+              <label>Upload File if There Are Evidences (Optional)</label>
+              <div class="file-upload-wrapper">
+                <span class="file-upload-btn">Choose File</span>
+                <input type="file" id="compFile" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xlsx">
+                <span class="file-name-label" id="fileName">No file chosen</span>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="submitComplaintBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13" />
+                  <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+                Submit Complaint
+              </button>
+              <button type="reset" class="btn btn-secondary" id="resetComplaintBtn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="1 4 1 10 7 10" />
+                  <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                </svg>
+                Reset Form
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- RIGHT: Track Complaint -->
+        <div class="tracking-card reveal">
+          <h3>Track Your Complaint</h3>
+          <p>Enter your complaint reference ID to check the current status of your report.</p>
+
+          <form id="trackForm">
+            <div class="form-group">
+              <label for="trackId">Complaint Reference ID</label>
+              <input type="text" id="trackId" class="form-control" placeholder="E.g. HJ7G2Z4b5NEW" required>
+            </div>
+            <button type="submit" class="btn btn-primary"
+              style="width: 100%; background-color: #2dd4bf; color: #0f172a;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8" />
+                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+              </svg>
+              Check Status
+            </button>
+          </form>
+
+          <!-- Tracking Results -->
+          <div class="tracking-results" id="trackingResults">
+            <span class="status-badge ongoing">● Ongoing</span>
+            <div class="status-info-row">
+              <span class="status-label-small">Reference ID</span>
+              <span class="status-value" id="trackResultId">—</span>
+            </div>
+            <div class="status-info-row">
+              <span class="status-label-small">Latest Update</span>
+              <span class="status-value desc">Investigation has commenced and relevant documents are under review.
+                Interviews with relevant parties have been scheduled.</span>
+            </div>
+            <div class="status-info-row">
+              <span class="status-label-small">Last Updated</span>
+              <span class="status-value">04 June 2026</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==========================================
+       FOOTER
+       ========================================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-about">
+          <h3>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="#0d9488"
+              style="display:inline; vertical-align:middle; margin-right:8px;">
+              <path
+                d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 16l-4-4 1.41-1.41L11 14.17l6.59-6.59L19 9l-8 8z" />
+            </svg>
+            IMANS
+          </h3>
+          <p>The Integrity and Governance Division is dedicated to upholding the highest standards of ethical conduct,
+            transparency, and institutional accountability.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="{{ url_for('landing') }}#home">Home</a></li>
+            <li><a href="{{ url_for('landing') }}#governance">Governance</a></li>
+            <li><a href="{{ url_for('landing') }}#integrity">Integrity Strengthening</a></li>
+            <li><a href="{{ url_for('landing') }}#resources">Resources</a></li>
+            <li><a href="{{ url_for('landing') }}#contact">Contact</a></li>
+            <li><a href="{{ url_for('complaint') }}">Report Complaint</a></li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h4>Contact Info</h4>
+          <p>
+            <svg viewBox="0 0 24 24">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="none" stroke="currentColor"
+                stroke-width="2" />
+              <circle cx="12" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="2" />
+            </svg>
+            Ibu Pejabat Kumpulan Sawit Kinabalu, Tingkat 7, Blok B, Menara Kinabalu, Jalan Sulaman, Teluk Likas, 88400
+            Kota Kinabalu, Sabah, Malaysia.
+          </p>
+          <p>
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0 1 22 16.92z"
+                fill="none" stroke="currentColor" stroke-width="2" />
+            </svg>
+            012 - 759 8583
+          </p>
+          <p>
+            <svg viewBox="0 0 24 24">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" fill="none"
+                stroke="currentColor" stroke-width="2" />
+              <polyline points="22,6 12,13 2,6" fill="none" stroke="currentColor" stroke-width="2" />
+            </svg>
+            whistleblowing@sawitkinabalu.com.my
+          </p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Integrity & Governance Division. All rights reserved.</p>
+        <p>Committed to ISO 37001 Anti-Bribery Management System</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Success Modal -->
+  <div class="modal-overlay" id="complaintModal">
+    <div class="modal-content">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+          stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </div>
+      <h3>Complaint Submitted Successfully</h3>
+      <p>Your complaint has been successfully submitted. Please save your reference ID for future tracking.</p>
+      <div class="ref-box">
+        <span id="refIdDisplay">IGD-000000</span>
+        <button class="copy-btn" id="copyRefBtn" title="Copy Reference ID">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
+            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+          </svg>
+        </button>
+      </div>
+      <p style="font-size: 0.85rem; color: var(--text-light);">Reference ID: <strong id="refIdText">IGD-000000</strong>
+      </p>
+      <button class="btn btn-primary" onclick="closeModal('complaintModal')" style="width:100%;">Done</button>
+    </div>
+  </div>
+
+  <div id="submitLoadingOverlay" class="submit-loading-overlay">
+    <div class="submit-loading-content">
+      <div class="submit-spinner"></div>
+      <h3>Submitting Your Complaint</h3>
+      <p>Please wait while we securely process your submission...</p>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/complaint.js') }}"></script>
+
+</body>
+
+</html>

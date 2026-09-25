@@ -1,0 +1,291 @@
+/* ==========================================
+   AUDIT LOG DASHBOARD
+   ========================================== */
+.audit-columns {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 20px;
+    margin-top: 24px;
+}
+
+.audit-feed-panel,
+.audit-sessions-panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    max-height: 480px;
+    overflow-y: auto;
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.panel-header h3 {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--success);
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+.feed-item {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.feed-item:last-child { border-bottom: none; }
+
+.feed-item-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.feed-time {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+}
+
+.feed-item-body {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.session-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.session-item:last-child { border-bottom: none; }
+
+.session-meta {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.audit-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    margin: 16px 0;
+    padding: 12px;
+
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+
+    box-shadow: var(--shadow-sm);
+    transition: all var(--transition-fast);
+}
+
+/* Inputs inside filters */
+.audit-filters .form-control {
+    max-width: 200px;
+    height: 38px;
+
+    padding: 6px 10px;
+    border-radius: 8px;
+
+    border: 1px solid var(--border-color);
+    background: var(--bg-main);
+    color: var(--primary-dark);
+
+    font-size: 0.85rem;
+
+    transition: all var(--transition-fast);
+}
+
+/* Placeholder */
+.audit-filters .form-control::placeholder {
+    color: var(--text-medium);
+}
+
+/* Focus state (matches your login input style) */
+.audit-filters .form-control:focus {
+    outline: none;
+    border-color: var(--accent-teal);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* Buttons */
+.audit-filters button {
+    height: 38px;
+    padding: 0 14px;
+
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+
+    background: var(--bg-main);
+    color: var(--primary-dark);
+
+    cursor: pointer;
+    font-size: 0.85rem;
+
+    transition: all var(--transition-fast);
+}
+
+/* Hover */
+.audit-filters button:hover {
+    background: var(--bg-secondary);
+    border-color: var(--accent-teal);
+}
+
+/* Dark mode ONLY tweaks (minimal because your system already handles most) */
+html[data-theme='dark'] .audit-filters {
+    background: #141720;
+}
+
+html[data-theme='dark'] .audit-filters .form-control {
+    background: #0f1119;
+    color: #e8eaf0;
+}
+
+html[data-theme='dark'] .audit-filters button {
+    background: #1e2130;
+    color: #e8eaf0;
+}
+
+html[data-theme='dark'] .audit-filters button:hover {
+    background: #262a3d;
+}
+
+/* LIGHT MODE ONLY override */
+html:not([data-theme='dark']) .audit-filters .form-control {
+    background: #ffffff;
+}
+
+html[data-theme='dark'] input[type="date"] {
+    color-scheme: dark;
+}
+/* Apply button */
+#auditApplyBtn,
+#applyFiltersBtn {
+    background: #3b82f6;
+    color: white;
+}
+
+#auditApplyBtn:hover,
+#applyFiltersBtn:hover {
+    background: #2563eb;
+}
+
+/* Reset button (if you add one) */
+.audit-reset-btn {
+    background: rgba(255,255,255,0.08);
+    color: var(--text-color, #e5e7eb);
+}
+
+.audit-reset-btn:hover {
+    background: rgba(255,255,255,0.15);
+}
+.details-json {
+    display: none;
+    background: var(--bg-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 8px;
+    margin-top: 6px;
+    max-width: 320px;
+}
+
+.details-json.open { display: block; }
+
+.details-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 6px;
+}
+
+.details-list-nested {
+    margin-top: 4px;
+    padding-left: 10px;
+    border-left: 1px solid var(--border-color);
+    gap: 4px;
+}
+
+.details-key {
+    display: block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+}
+
+.details-value {
+    display: block;
+    font-size: 0.74rem;
+    color: var(--text-secondary);
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.details-empty {
+    font-size: 0.74rem;
+    color: var(--text-muted);
+}
+
+.audit-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 16px;
+    font-size: 0.85rem;
+}
+
+
+@media (max-width: 900px) {
+    .audit-columns {
+        grid-template-columns: 1fr;
+    }
+    .audit-filters .form-control {
+        max-width: 100%;
+        flex: 1 1 45%;
+    }
+}
+
+@media (max-width: 600px) {
+    .complaints-table thead { display: none; }
+    .complaints-table, .complaints-table tbody, .complaints-table tr, .complaints-table td {
+        display: block;
+        width: 100%;
+    }
+    .complaints-table tr {
+        margin-bottom: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 10px;
+    }
+    .complaints-table td {
+        padding: 6px 0;
+        border: none;
+    }
+    .complaints-table td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        display: block;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        text-transform: uppercase;
+    }
+}

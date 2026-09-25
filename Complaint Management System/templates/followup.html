@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Submit Additional Information – Integrity & Governance Portal</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <style>
+      .followup-card {
+          background-color: var(--bg-card);
+          padding: 40px;
+          border-radius: var(--border-radius);
+          border: 1px solid var(--border-color);
+          box-shadow: var(--shadow-md);
+          max-width: 600px;
+          margin: 40px auto;
+      }
+      .file-list {
+          margin-top: 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+      }
+      .file-item {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 12px;
+          background: var(--bg-secondary);
+          border: 1px solid var(--border-color);
+          border-radius: 6px;
+          font-size: 0.9rem;
+      }
+      .file-remove {
+          color: var(--danger, #ef4444);
+          cursor: pointer;
+          font-weight: 600;
+          font-size: 1.2rem;
+          line-height: 1;
+      }
+  </style>
+</head>
+<body>
+
+  <header class="header" id="header">
+    <div class="container">
+      <a href="/" class="logo">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 16l-4-4 1.41-1.41L11 14.17l6.59-6.59L19 9l-8 8z" />
+        </svg>
+        IMANS
+      </a>
+      <nav>
+        <ul class="nav-menu">
+          <li><a href="/" class="nav-link">Home</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main style="padding: 120px 0 80px 0; min-height: 80vh; background: var(--bg-main);">
+    <div class="container">
+      <div class="followup-card" id="followupFormContainer">
+        <h2 style="font-size: 1.75rem; margin-bottom: 8px; color: var(--text-dark);">Additional Information Requested</h2>
+        <p style="color: var(--text-medium); margin-bottom: 24px;">
+            Complaint Reference ID: <strong>{{ complaint['Complaint Reference ID'] or complaint['Tracking ID'] }}</strong>
+        </p>
+
+        {% if complaint.get('AdminRemarks') %}
+        <div style="background: rgba(245, 158, 11, 0.08); border-left: 4px solid #f59e0b; padding: 16px; border-radius: 6px; margin-bottom: 24px;">
+            <strong style="color: #d97706; display: block; margin-bottom: 4px;">Message from Admin:</strong>
+            <p style="margin: 0; font-size: 0.95rem; color: var(--text-medium);">{{ complaint['AdminRemarks'] }}</p>
+        </div>
+        {% endif %}
+
+        <form id="followupForm" enctype="multipart/form-data">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div class="form-group">
+            <label for="remarks">Your Message / Explanation <span style="color:var(--danger);">*</span></label>
+            <textarea id="remarks" name="remarks" class="form-control" placeholder="Provide additional details or response to the admin's request..." required style="min-height: 120px;"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Upload Supporting Files / Evidence (Max total size: 50MB)</label>
+            <div class="file-upload-wrapper">
+              <span class="file-upload-btn">Choose Files</span>
+              <input type="file" id="followupFiles" name="files" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xlsx">
+              <span class="file-name-label" id="fileCountLabel">No files chosen</span>
+            </div>
+            <div class="file-list" id="fileList"></div>
+          </div>
+
+          <div id="errorAlert" style="display:none; color: var(--danger); margin-bottom: 16px; font-weight: 500;"></div>
+
+          <button type="submit" class="btn btn-primary" id="submitBtn" style="width:100%;">
+            Submit Additional Information
+          </button>
+        </form>
+      </div>
+
+      <!-- Success Card (Hidden by default) -->
+      <div class="followup-card" id="successCard" style="display:none; text-align: center;">
+        <div style="width: 70px; height: 70px; border-radius: 50%; background-color: #ecfdf5; color: var(--success); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px auto;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 36px; height: 36px;">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <h2 style="font-size: 1.75rem; margin-bottom: 8px; color: var(--text-dark);">Information Submitted</h2>
+        <p style="color: var(--text-medium); margin-bottom: 24px;">Your response and files have been successfully submitted. The admin has been notified.</p>
+        <a href="/" class="btn btn-primary" style="display: inline-block;">Back to Home</a>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container" style="text-align: center;">
+      <p>&copy; 2026 Integrity & Governance Division. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script>
+      const fileInput = document.getElementById('followupFiles');
+      const fileCountLabel = document.getElementById('fileCountLabel');
+      const fileList = document.getElementById('fileList');
+      const errorAlert = document.getElementById('errorAlert');
+      const form = document.getElementById('followupForm');
+      const submitBtn = document.getElementById('submitBtn');
+      const followupFormContainer = document.getElementById('followupFormContainer');
+      const successCard = document.getElementById('successCard');
+
+      let selectedFiles = [];
+
+      fileInput.addEventListener('change', () => {
+          for (let file of fileInput.files) {
+              // Avoid duplicates
+              if (!selectedFiles.some(f => f.name === file.name && f.size === file.size)) {
+                  selectedFiles.push(file);
+              }
+          }
+          renderFileList();
+      });
+
+      function renderFileList() {
+          fileList.innerHTML = '';
+          let totalSize = 0;
+          selectedFiles.forEach((file, index) => {
+              totalSize += file.size;
+              const item = document.createElement('div');
+              item.className = 'file-item';
+              item.innerHTML = `
+                  <span>${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)</span>
+                  <span class="file-remove" onclick="removeFile(${index})">&times;</span>
+              `;
+              fileList.appendChild(item);
+          });
+
+          if (selectedFiles.length > 0) {
+              fileCountLabel.innerText = `${selectedFiles.length} file(s) selected (${(totalSize / (1024 * 1024)).toFixed(2)} MB)`;
+          } else {
+              fileCountLabel.innerText = 'No files chosen';
+          }
+
+          if (totalSize > 50 * 1024 * 1024) {
+              errorAlert.innerText = 'Error: Total file size exceeds the 50MB limit.';
+              errorAlert.style.display = 'block';
+              submitBtn.disabled = true;
+          } else {
+              errorAlert.style.display = 'none';
+              submitBtn.disabled = false;
+          }
+      }
+
+      window.removeFile = function(index) {
+          selectedFiles.splice(index, 1);
+          renderFileList();
+      };
+
+      form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          
+          errorAlert.style.display = 'none';
+          submitBtn.disabled = true;
+          submitBtn.innerText = 'Submitting...';
+
+          const formData = new FormData();
+          formData.append('csrf_token', document.querySelector('input[name="csrf_token"]')?.value || '');
+          formData.append('remarks', document.getElementById('remarks').value);
+          selectedFiles.forEach(file => {
+              formData.append('files', file);
+          });
+
+          fetch('/api/followup/{{ complaint["FollowupToken"] }}', {
+              method: 'POST',
+              body: formData
+          })
+          .then(res => res.json())
+          .then(data => {
+              if (data.success) {
+                  followupFormContainer.style.display = 'none';
+                  successCard.style.display = 'block';
+              } else {
+                  errorAlert.innerText = data.message || 'An error occurred during submission.';
+                  errorAlert.style.display = 'block';
+                  submitBtn.disabled = false;
+                  submitBtn.innerText = 'Submit Additional Information';
+              }
+          })
+          .catch(err => {
+              console.error(err);
+              errorAlert.innerText = 'A network error occurred. Please try again.';
+              errorAlert.style.display = 'block';
+              submitBtn.disabled = false;
+              submitBtn.innerText = 'Submit Additional Information';
+          });
+      });
+  </script>
+</body>
+</html>

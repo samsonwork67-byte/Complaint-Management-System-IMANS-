@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "title": "Governance Handbook",
+    "description": "Comprehensive guide to governance policies and frameworks.",
+    "file_url": "/static/uploads/governance-handbook.pdf",
+    "file_size": "2.4 MB",
+    "updated_date": "May 2026",
+    "icon": "book",
+    "created_at": "2026-06-16T01:31:15.073707+00:00"
+  },
+  {
+    "id": 2,
+    "title": "Integrity Guidelines",
+    "description": "Guidelines for maintaining integrity across all operations.",
+    "file_url": "/static/uploads/integrity-guidelines.pdf",
+    "file_size": "1.8 MB",
+    "updated_date": "April 2026",
+    "icon": "document",
+    "created_at": "2026-06-16T01:31:15.073707+00:00"
+  },
+  {
+    "id": 3,
+    "title": "Employee Ethics Guide",
+    "description": "Ethics standards and conduct expectations for all employees.",
+    "file_url": "/static/uploads/employee-ethics-guide.pdf",
+    "file_size": "1.2 MB",
+    "updated_date": "March 2026",
+    "icon": "people",
+    "created_at": "2026-06-16T01:31:15.073707+00:00"
+  },
+  {
+    "id": 4,
+    "title": "Risk Management Guide",
+    "description": "Risk assessment and management framework reference.",
+    "file_url": "/static/uploads/risk-management-guide.pdf",
+    "file_size": "3.1 MB",
+    "updated_date": "May 2026",
+    "icon": "shield",
+    "created_at": "2026-06-16T01:31:15.073707+00:00"
+  },
+  {
+    "id": 5,
+    "title": "Testing",
+    "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+    "file_url": "/static/uploads/resources/resource-497c36fb-AI_Exercise_2.pdf",
+    "file_size": "0.2 MB",
+    "updated_date": "June 2026",
+    "icon": "document",
+    "created_at": "2026-06-16T01:41:56.15238+00:00"
+  }
+]

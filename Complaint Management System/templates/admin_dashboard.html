@@ -1,0 +1,408 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block top_bar_actions %}
+{% set _role = (session.get('admin_role') or '')|upper %}
+{% if _role in ['DASHBOARD_EDITOR', 'FULL_ACCESS', 'SUPER_ADMIN'] %}
+<button class="btn btn-primary manual-complaint-btn" id="openManualComplaintBtn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="12" y1="5" x2="12" y2="19" />
+        <line x1="5" y1="12" x2="19" y2="12" />
+    </svg>
+    Manual Complaint Entry
+</button>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card" id="statTotal">
+        <div class="stat-icon total">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">{{ stats.total }}</span>
+            <span class="stat-label">Total</span>
+        </div>
+    </div>
+
+    <div class="stat-card" id="statResolved">
+        <div class="stat-icon sent">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">{{ stats.resolved }}</span>
+            <span class="stat-label">Resolved</span>
+        </div>
+    </div>
+
+    <div class="stat-card" id="statNfa">
+        <div class="stat-icon pending">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">{{ stats.nfa }}</span>
+            <span class="stat-label">NFA</span>
+        </div>
+    </div>
+
+    <div class="stat-card" id="statKiv">
+        <div class="stat-icon pending">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">{{ stats.failed }}</span>
+            <span class="stat-label">KIV</span>
+        </div>
+    </div>
+
+    <div class="stat-card" id="statOngoing">
+        <div class="stat-icon pending">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" />
+                <polyline points="12 6 12 12 16 14" />
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value">{{ stats.ongoing }}</span>
+            <span class="stat-label">Ongoing</span>
+        </div>
+    </div>
+</div>
+
+<!-- Filter Tabs -->
+<div class="table-controls">
+    <div class="filter-tabs" id="filterTabs">
+        <button class="filter-tab active" data-filter="all">All</button>
+        <button class="filter-tab" data-filter="resolved">Resolved</button>
+        <button class="filter-tab" data-filter="nfa">NFA</button>
+        <button class="filter-tab" data-filter="ongoing">Ongoing</button>
+        <button class="filter-tab" data-filter="kiv">KIV</button>
+    </div>
+    <span class="results-count" id="resultsCount">{{ complaints|length }} complaint{{ 's' if complaints|length != 1
+        }}</span>
+</div>
+
+<!-- Search Bar -->
+<div class="search-wrapper">
+    <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+    <input type="text" id="searchInput" class="search-input" placeholder="Search complaints...">
+</div>
+
+{% set _role = (session.get('admin_role') or '')|upper %}
+{% if _role in ['DASHBOARD_EDITOR', 'FULL_ACCESS', 'SUPER_ADMIN'] %}
+
+<div id="manualComplaintOverlay" class="overlay">
+    <div class="overlay-content">
+        <h3>Manual Complaint Entry</h3>
+        <p class="manual-complaint-description">
+            Use this form to record complaints received via hardcopy, phone call, walk-in, or email.
+        </p>
+
+        <form id="manualComplaintForm" enctype="multipart/form-data">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="form-group">
+                <label>How was this complaint received?</label>
+                <select name="entry_source" class="form-control">
+                    <option value="Phone Call">Phone Call</option>
+                    <option value="Walk-in">Walk-in</option>
+                    <option value="Hardcopy">Hardcopy</option>
+                    <option value="Email (manual entry)">Email (manual entry)</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <hr class="manual-divider">
+            <p class="manual-section-title">Complainant Information</p>
+
+            <div class="form-group">
+                <label>Full Name <span class="required-star">*</span></label>
+                <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Email Address <span class="required-star">*</span></label>
+                <input type="email" name="email" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" name="phone" class="form-control">
+            </div>
+
+            <hr class="manual-divider">
+            <p class="manual-section-title">Details of the Accused</p>
+
+            <div class="form-group">
+                <label>Name of The Accused <span class="required-star">*</span></label>
+                <input type="text" name="accused" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label>Position of The Accused</label>
+                <input type="text" name="position" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Company of The Accused</label>
+                <input type="text" name="company" class="form-control">
+            </div>
+
+            <hr class="manual-divider">
+            <p class="manual-section-title">Incident Information</p>
+
+            <div class="form-group">
+                <label>Type of Complaint <span class="required-star">*</span></label>
+                <select name="category" class="form-control" required>
+                    <option value="" disabled selected>Select a category</option>
+                    <option value="Bribery & Corruption">Bribery & Corruption</option>
+                    <option value="Fraud">Fraud</option>
+                    <option value="Misconduct">Misconduct</option>
+                    <option value="Conflict of Interest">Conflict of Interest</option>
+                    <option value="Abuse of Power">Abuse of Power</option>
+                    <option value="Harassment">Harassment</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Date of Incident</label>
+                <input type="date" name="incident_date" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Time of Incident (General)</label>
+                <select name="incident_time" class="form-control">
+                    <option value="" disabled selected>Select a general time</option>
+                    <option value="Morning (6am - 12pm)">Morning (6am - 12pm)</option>
+                    <option value="Afternoon (12pm - 6pm)">Afternoon (12pm - 6pm)</option>
+                    <option value="Evening (6pm - 9pm)">Evening (6pm - 9pm)</option>
+                    <option value="Night (9pm - 6am)">Night (9pm - 6am)</option>
+                    <option value="Unknown">Unknown</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Location of Incident</label>
+                <input type="text" name="location" class="form-control">
+            </div>
+            <div class="form-group">
+                <label>Details of Complaint <span class="required-star">*</span></label>
+                <textarea name="details" class="form-control" required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Other Involved Parties (If applicable)</label>
+                <textarea name="other_parties" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Upload Evidence (Optional)</label>
+                <input type="file" name="file" class="form-control" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.xlsx">
+            </div>
+
+            <div class="manual-form-actions">
+                <button type="submit" class="btn btn-success" id="manualSubmitBtn">Save Complaint</button>
+                <button type="button" class="btn btn-secondary" id="closeManualComplaintBtn">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+<!-- Complaints Table -->
+<div class="table-wrapper">
+    {% if complaints %}
+    <table class="complaints-table" id="complaintsTable">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Accused</th>
+                <th>Category</th>
+                <th>Date Received</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in complaints %}
+            <tr class="complaint-row" tabindex="0" data-href="{{ url_for('complaint_detail', complaint_id=c['id']) }}"
+                data-status="{% if c['Status'] == 'RESOLVED' %}resolved{% elif c['Status'] == 'NFA' %}nfa{% elif c['Status'] == 'KIV' %}kiv{% else %}ongoing{% endif %}"
+                data-id="{{ c['id'] }}">
+
+                <td><span class="complaint-id">{{ c['Complaint Reference ID'] or c['Tracking ID'] or 'N/A' }}</span>
+                </td>
+                {% set can_edit = session.get('admin_role') in ['DASHBOARD_EDITOR','FULL_ACCESS','SUPER_ADMIN'] %}
+                <td class="cell-name">
+                    {% if can_edit %}
+                    <span class="view-val">{{ c['Name of The Accused'] or 'N/A' }}</span>
+                    <input class="edit-val" type="text" value="{{ c['Name of The Accused'] or '' }}"
+                        style="display:none; width:200px;" />
+                    {% else %}
+                    {{ c['Name of The Accused'] or 'N/A' }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if can_edit %}
+                    <span class="view-val category-badge">{{ c['Type of Complaint'] or 'N/A' }}</span>
+                    <input class="edit-val" type="text" value="{{ c['Type of Complaint'] or '' }}"
+                        style="display:none; width:140px;" />
+                    {% else %}
+                    <span class="category-badge">{{ c['Type of Complaint'] or 'N/A' }}</span>
+                    {% endif %}
+                </td>
+                <td class="cell-date">
+                    {% if can_edit %}
+                    <span class="view-val">{{ format_datetime(c['Timestamp']) if c['Timestamp'] else 'N/A' }}</span>
+                    <input class="edit-val" type="text" value="{{ c['Timestamp'] or '' }}"
+                        style="display:none; width:160px;" />
+                    {% else %}
+                    {{ format_datetime(c['Timestamp']) if c['Timestamp'] else 'N/A' }}
+                    {% endif %}
+                </td>
+                <td class="cell-email">
+                    {% if can_edit %}
+                    <span class="view-val">{{ c['Email address'] or 'N/A' }}</span>
+                    <input class="edit-val" type="email" value="{{ c['Email address'] or '' }}"
+                        style="display:none; width:200px;" />
+                    {% else %}
+                    {{ c['Email address'] or 'N/A' }}
+                    {% endif %}
+                </td>
+                <td>
+                    {% if c['Status'] == 'RESOLVED' %}
+                    <span class="status-badge status-sent">Resolved</span>
+                    {% elif c['Status'] == 'NFA' %}
+                    <span class="status-badge status-processing">NFA</span>
+                    {% elif c['Status'] == 'KIV' %}
+                    <span class="status-badge status-failed">KIV</span>
+                    {% else %}
+                    <span class="status-badge status-pending">Ongoing</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div style="display: flex; gap: 8px; align-items: center; justify-content: flex-end;">
+                        {% if c['Status'] == 'KIV' %}
+                        <button class="retry-action-btn" data-id="{{ c['id'] }}">
+                            <span>Retry</span>
+                        </button>
+                        {% endif %}
+                        {% if can_edit %}
+                        <button class="save-row-btn" data-id="{{ c['id'] }}" style="display:none;">Save</button>
+                        <button class="cancel-row-btn" data-id="{{ c['id'] }}" style="display:none;">Cancel</button>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="no-complaints">
+        <p>No complaints found.</p>
+    </div>
+    {% endif %} <!-- 🔥 this is the missing line -->
+</div>
+{% if session.get('admin_role') in ['DASHBOARD_EDITOR','FULL_ACCESS','SUPER_ADMIN'] %}
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.edit-row-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = btn.dataset.id;
+                const tr = btn.closest('tr');
+                tr.querySelectorAll('.view-val').forEach(el => el.style.display = 'none');
+                tr.querySelectorAll('.edit-val').forEach(el => el.style.display = 'inline-block');
+                tr.querySelector('.edit-row-btn').style.display = 'none';
+                tr.querySelector('.save-row-btn').style.display = 'inline-block';
+                tr.querySelector('.cancel-row-btn').style.display = 'inline-block';
+            });
+        });
+
+        document.querySelectorAll('.cancel-row-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const tr = btn.closest('tr');
+                tr.querySelectorAll('.view-val').forEach(el => el.style.display = 'inline');
+                tr.querySelectorAll('.edit-val').forEach(el => el.style.display = 'none');
+                tr.querySelector('.edit-row-btn').style.display = 'inline-block';
+                tr.querySelector('.save-row-btn').style.display = 'none';
+                tr.querySelector('.cancel-row-btn').style.display = 'none';
+            });
+        });
+
+        document.querySelectorAll('.save-row-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const id = btn.dataset.id;
+                const tr = btn.closest('tr');
+                const inputs = tr.querySelectorAll('.edit-val');
+                // order: Name, Category, Date, Email
+                const payload = {
+                    name: inputs[0].value.trim(),
+                    category: inputs[1].value.trim(),
+                    incident_date: inputs[2].value.trim(),
+                    email: inputs[3].value.trim()
+                };
+                btn.disabled = true;
+                try {
+                    const res = await fetch(`/api/update-complaint/${id}`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': document.querySelector('input[name="csrf_token"]')?.value || '' }, body: JSON.stringify(payload) });
+                    const data = await res.json();
+                    if (data.success) {
+                        // update view values
+                        const views = tr.querySelectorAll('.view-val');
+                        views[0].textContent = payload.name || 'N/A';
+                        views[1].textContent = payload.category || 'N/A';
+                        views[2].textContent = payload.incident_date ? payload.incident_date : 'N/A';
+                        views[3].textContent = payload.email || 'N/A';
+                        // switch back to view
+                        tr.querySelectorAll('.view-val').forEach(el => el.style.display = 'inline');
+                        tr.querySelectorAll('.edit-val').forEach(el => el.style.display = 'none');
+                        tr.querySelector('.edit-row-btn').style.display = 'inline-block';
+                        tr.querySelector('.save-row-btn').style.display = 'none';
+                        tr.querySelector('.cancel-row-btn').style.display = 'none';
+                    } else {
+                        alert(data.message || 'Failed to update');
+                    }
+                } catch (err) {
+                    console.error('Update error', err); alert('Error updating');
+                }
+                btn.disabled = false;
+            });
+        });
+    });
+</script>
+<script>
+    // make complaint rows clickable (navigate to detail) and keyboard accessible
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.complaint-row').forEach(row => {
+            // avoid attaching if row already has its own handlers (safe to re-run)
+            row.addEventListener('click', (e) => {
+                if (e.target.closest('button, a')) return; // let buttons work
+                const href = row.dataset.href;
+                if (href) window.location.href = href;
+            });
+            row.addEventListener('keydown', (e) => {
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                if (e.target.closest('button, a')) return;
+                e.preventDefault();
+                const href = row.dataset.href;
+                if (href) window.location.href = href;
+            });
+        });
+    });
+</script>
+{% endblock %}
+{% endif %}
+{% endblock %}

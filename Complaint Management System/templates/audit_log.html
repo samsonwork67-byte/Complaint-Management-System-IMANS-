@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+{% block title %}Audit Log{% endblock %}
+{% block page_title %}Audit Log{% endblock %}
+
+{% block content %}
+<!-- KPI Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon sent">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value" id="kpiActiveAdmins">—</span>
+            <span class="stat-label">Active Admins</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon total">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value" id="kpiTotalActions">—</span>
+            <span class="stat-label">Actions Today</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon pending">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value" id="kpiAvgSession">—</span>
+            <span class="stat-label">Avg Session (min)</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon total">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6-6.3 4.6 2.3-7.4-6-4.6h7.6z"/>
+            </svg>
+        </div>
+        <div class="stat-info">
+            <span class="stat-value" id="kpiMostActive" style="font-size:1.1rem;">—</span>
+            <span class="stat-label">Most Active Admin</span>
+        </div>
+    </div>
+</div>
+
+<!-- Middle: Feed + Sessions -->
+<div class="audit-columns">
+    <div class="audit-feed-panel">
+        <div class="panel-header">
+            <h3>Live Activity Feed</h3>
+            <span class="live-dot"></span>
+        </div>
+        <div id="activityFeed" class="activity-feed"></div>
+    </div>
+
+    <div class="audit-sessions-panel">
+        <div class="panel-header">
+            <h3>Active Sessions</h3>
+        </div>
+        <div id="sessionsList" class="sessions-list"></div>
+    </div>
+</div>
+
+<!-- Bottom: Filterable Table -->
+<div class="panel-header" style="margin-top:28px;">
+    <h3>Audit Log Table</h3>
+</div>
+
+<div class="audit-filters">
+    <select id="filterAction" class="form-control">
+        <option value="">All Actions</option>
+        <option value="LOGIN">Login</option>
+        <option value="LOGOUT">Logout</option>
+        <option value="VIEW">View</option>
+        <option value="CREATE">Create</option>
+        <option value="UPDATE">Update</option>
+        <option value="DELETE">Delete</option>
+    </select>
+    <select id="filterAdmin" class="form-control">
+        <option value="">All Admins</option>
+    </select>
+    <input type="text" id="filterSearch" class="form-control" placeholder="Search by target / complaint ID">
+    <div class="filter-group">
+        <label class="filter-label">Date From</label>
+        <input type="date" id="filterDateFrom" class="form-control">
+    </div>
+
+    <div class="filter-group">
+        <label class="filter-label">Date To</label>
+        <input type="date" id="filterDateTo" class="form-control">
+    </div>
+</div>
+
+<div class="table-wrapper">
+    <table class="complaints-table" id="auditTable">
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>Admin</th>
+                <th>Action</th>
+                <th>Target</th>
+                <th>Session ID</th>
+                <th>Details</th>
+            </tr>
+        </thead>
+        <tbody id="auditTableBody"></tbody>
+    </table>
+</div>
+
+<div class="audit-pagination">
+    <button class="btn btn-secondary" id="prevPageBtn">Previous</button>
+    <span id="pageInfo">Page 1</span>
+    <button class="btn btn-secondary" id="nextPageBtn">Next</button>
+</div>
+{% endblock %}
+
+{% block scripts %}{% endblock %}

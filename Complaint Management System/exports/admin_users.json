@@ -1,0 +1,47 @@
+[
+  {
+    "id": 4,
+    "username": "Samson",
+    "email": null,
+    "password_hash": "scrypt:32768:8:1$YKR8AQL6zHaStp6T$b1d4e09340390dc95d10912d3da7d888ccd31d2f51f85c2577839f9922852ce29aeac879fe041c7c65711ad054b254a4aa15efe27d9ffc9d44b8dc5cc85e328c",
+    "role": "VIEW_ONLY",
+    "is_active": true,
+    "created_at": "2026-06-19T06:40:24.604454"
+  },
+  {
+    "id": 7,
+    "username": "landing",
+    "email": null,
+    "password_hash": "scrypt:32768:8:1$vv28b8czXH88vWut$831daf491903b082e928701302929e583cc6c1b59f7216474177324b3ce6913bf43744676c122c3de25f1ce892c1637a7abb620a8671c7935fda76f91062eb39",
+    "role": "LANDING_EDITOR",
+    "is_active": true,
+    "created_at": "2026-06-19T07:15:01.715373"
+  },
+  {
+    "id": 1,
+    "username": "admin",
+    "email": null,
+    "password_hash": "scrypt:32768:8:1$nrdxTMxDKDr8fX1D$2269a37f3431da06dd15fbe8e3a9e32456ebeb83b1cafa73e547df8a664cd9cd68a0f99225756236db3c5350a8e8ec49e9e5ed2ebb798926588733eb5c9ae12f",
+    "role": "SUPER_ADMIN",
+    "is_active": true,
+    "created_at": "2026-06-18T08:37:44.642359"
+  },
+  {
+    "id": 8,
+    "username": "dashboard",
+    "email": null,
+    "password_hash": "scrypt:32768:8:1$ARBZqqJQLwSMeJNh$b04f1249edda3bbc948ffe5bdb425f9175113aba74e3b614f7ab7ede3736e893598bfd11213e7f5a8a62f69496529020506b388f64cdec0ac8568f3078a21c0c",
+    "role": "DASHBOARD_EDITOR",
+    "is_active": true,
+    "created_at": "2026-06-19T07:18:39.98356"
+  },
+  {
+    "id": 9,
+    "username": "full admin",
+    "email": null,
+    "password_hash": "scrypt:32768:8:1$JmSJmH2IEO19xHEM$cf97b15ed1ea0cb52de2847af1bce7f144e5481e2496d855796debfa356d49ebb809ae14d429a730a1532de6ffb6f31325214456c5a1b96fd37ad4c12e6c8e7a",
+    "role": "FULL_ACCESS",
+    "is_active": true,
+    "created_at": "2026-06-19T07:20:13.796409"
+  }
+]

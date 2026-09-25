@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% set display_ref = complaint['Complaint Reference ID'] or complaint.get('Tracking ID') or complaint_id %}
+{% block title %}Complaint {{ display_ref }}{% endblock %}
+{% block page_title %}{{ display_ref }}{% endblock %}
+
+{% block content %}
+<div data-complaint-id="{{ complaint_id }}" id="complaintDetailRoot">
+    {% set _role = (session.get('admin_role') or '')|upper %}
+    {% set can_edit = _role in ['DASHBOARD_EDITOR','FULL_ACCESS','SUPER_ADMIN'] %}
+    <div class="detail-header">
+        <a href="{{ url_for('admin_dashboard') }}" class="back-link" id="backLink">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 12H5" />
+                <polyline points="12 19 5 12 12 5" />
+            </svg>
+            Back to Dashboard
+        </a>
+
+        <div class="detail-title-row">
+            {% if can_edit %}
+            <div style="display:flex; align-items:center; gap:8px;">
+                <h2 class="detail-id" id="refIdDisplay">{{ display_ref }}</h2>
+                <button type="button" onclick="openRefIdEditor()"
+                    style="background:none; border:none; cursor:pointer; color:var(--text-muted); padding:4px;"
+                    title="Edit Reference ID">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                    </svg>
+                </button>
+            </div>
+            {% else %}
+            <h2 class="detail-id">{{ display_ref }}</h2>
+            {% endif %}
+
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <select id="statusSelect" data-id="{{ complaint_id }}" {% if not can_edit %}disabled{% endif %}
+                    style="padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--bg-surface); color: var(--text-primary); font-size: 0.85rem; font-weight: 500; cursor: pointer; outline: none;">
+                    <option value="ONGOING" {% if complaint.get('Status')=='ONGOING' %}selected{% endif %}>Ongoing
+                    </option>
+                    <option value="RESOLVED" {% if complaint.get('Status')=='RESOLVED' %}selected{% endif %}>Resolved
+                    </option>
+                    <option value="NFA" {% if complaint.get('Status')=='NFA' %}selected{% endif %}>NFA</option>
+                    <option value="KIV" {% if complaint.get('Status')=='KIV' %}selected{% endif %}>KIV</option>
+                </select>
+            </div>
+
+            <a href="/download/{{ complaint_id }}" target="_blank" class="download-btn" id="downloadPdf">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                    <circle cx="12" cy="12" r="3" />
+                </svg>
+                View PDF Report
+            </a>
+        </div>
+    </div>
+
+    <div class="detail-grid">
+        {% set _role = (session.get('admin_role') or '')|upper %}
+        {% set can_view_details = true %}
+        {% set can_edit = _role in ['DASHBOARD_EDITOR','FULL_ACCESS','SUPER_ADMIN'] %}
+        {% for key, value in display_fields.items() %}
+        {% set is_followup_response = key == 'Follow-up Response' %}
+        {% if key not in ['Remarks', 'Last Updated Date', 'Status', 'Details of Complaint'] %}
+        <div class="detail-card" data-field="{{ key }}">
+            <div class="detail-header-row">
+                <span class="detail-label">{{ key }}</span>
+                {% if can_edit and not is_followup_response %}
+                <div class="menu-wrapper">
+                    <button class="menu-btn" onclick="toggleMenu('{{ loop.index }}')"
+                        aria-label="Document actions">...</button>
+                    <div id="detailMenu-{{ loop.index }}" class="detail-actions-menu">
+                        <button class="detail-edit-btn" data-edit-index="{{ loop.index0 }}">Edit</button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <span class="detail-value">
+                <span class="view-val">
+                    {% if value %}
+                    {% if key in ['Timestamp', 'Date of Incident', 'Last Updated Date', 'LastReviewDate'] %}
+                    {{ format_datetime(value) }}
+                    {% else %}
+                    {{ value }}
+                    {% endif %}
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </span>
+                {% if can_edit and not is_followup_response and key in editable_fields %}
+                <input class="edit-val" type="text" value="{{ value or '' }}"
+                    style="display:none; width:100%; max-width:420px; margin-top:6px;" />
+                <button class="save-card-btn" style="display:none; margin-left:8px;"
+                    onclick="saveCard('{{ loop.index0 }}')">Save</button>
+                <button class="cancel-card-btn" style="display:none; margin-left:4px;"
+                    onclick="cancelCard('{{ loop.index0 }}')">Cancel</button>
+                {% endif %}
+            </span>
+        </div>
+        {% endif %}
+        {% endfor %}
+
+        <!-- Insert Tracking ID card beside other detail cards (e.g., Follow-up Response) -->
+        <div class="detail-card" data-field="Tracking ID">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                <span class="detail-label">Tracking ID</span>
+            </div>
+            <span class="detail-value">
+                <span class="view-val">{{ complaint.get('Tracking ID') or 'N/A' }}</span>
+                {% if can_edit %}
+                <input class="edit-val" type="text" value="{{ complaint.get('Tracking ID') or '' }}"
+                    style="display:none; width:100%; max-width:420px; margin-top:6px;" />
+                <button class="save-card-btn" style="display:none; margin-left:8px;"
+                    onclick="saveCard(12)">Save</button>
+                <button class="cancel-card-btn" style="display:none; margin-left:4px;"
+                    onclick="cancelCard(12)">Cancel</button>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+
+    <!-- Render Details of Complaint above Uploaded Proof -->
+    {% if display_fields.get('Details of Complaint') is defined %}
+    <div class="detail-grid" style="margin-top:8px;">
+        <div class="detail-card" data-field="Details of Complaint">
+            <div class="detail-header-row">
+                <span class="detail-label">Details of Complaint</span>
+                {% if can_edit %}
+                <div class="menu-wrapper">
+                    <button class="menu-btn" onclick="toggleMenu('details')">...</button>
+                    <div id="detailMenu-details" class="detail-actions-menu">
+                        <button class="detail-edit-btn" data-edit-index="details"
+                            onclick="openCardEditor('details')">Edit</button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            <span class="detail-value">
+                {% set value = display_fields['Details of Complaint'] %}
+                <span class="view-val">{{ value or 'N/A' }}</span>
+                {% if can_edit %}
+                <input class="edit-val" type="text" value="{{ value or '' }}"
+                    style="display:none; width:100%; max-width:420px; margin-top:6px;" />
+                <button class="save-card-btn" style="display:none; margin-left:8px;"
+                    onclick="saveCard('details')">Save</button>
+                <button class="cancel-card-btn" style="display:none; margin-left:4px;"
+                    onclick="cancelCard('details')">Cancel</button>
+                {% endif %}
+            </span>
+        </div>
+    </div>
+    {% endif %}
+
+    {% set _role = (session.get('admin_role') or '')|upper %}
+    {% if _role in ['DASHBOARD_EDITOR', 'FULL_ACCESS', 'SUPER_ADMIN'] %}
+    <button id="sectionsSidebarToggle" class="sections-toggle-btn" title="Complaint Sections">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M9 18l6-6-6-6" />
+        </svg>
+    </button>
+
+    <div id="sectionsSidebar" class="sections-sidebar">
+        <div class="sections-sidebar-header">
+            <h3>Complaint Sections</h3>
+            <button id="closeSectionsSidebar" class="sections-close-btn">&times;</button>
+        </div>
+
+        <div class="sections-add-row">
+            <input type="text" id="newSectionTitle" class="form-control"
+                placeholder="e.g. Investigation Notes, Committee Decision...">
+            <button id="addSectionBtn" class="btn btn-primary" style="width:100%; margin-top:8px;">+ Add
+                Section</button>
+        </div>
+
+        <div id="sectionsList" class="sections-list"></div>
+    </div>
+
+    <div id="sectionsSidebarOverlay" class="sections-sidebar-overlay"></div>
+    {% endif %}
+    <!-- removed duplicate Tracking ID block (now rendered inside the main detail-grid) -->
+
+    <div class="evidence-section">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+            <h3 style="margin: 0;">Uploaded Proof</h3>
+            {% if can_edit %}
+            <button type="button" class="download-btn" id="requestInfoBtn"
+                onclick="openRequestInfoModal('{{ complaint_id }}')"
+                style="background: var(--accent); border: none; cursor: pointer; color: white; margin-left: 0;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    style="width: 16px; height: 16px;">
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                </svg>
+                Request Info
+            </button>
+            {% endif %}
+        </div>
+        {% if evidence_files %}
+        <div class="evidence-grid">
+            {% for file in evidence_files %}
+            <div class="evidence-card">
+                <div class="evidence-preview">
+                    {% if file.is_image %}
+                    <a href="{{ file.url }}" target="_blank">
+                        <img src="{{ file.url }}" alt="{{ file.name }}">
+                    </a>
+                    {% elif file.is_pdf %}
+                    <iframe src="{{ file.url }}" title="{{ file.name }}"></iframe>
+                    {% else %}
+                    <div class="file-type">{{ file.extension }}</div>
+                    {% endif %}
+                </div>
+                <div class="evidence-meta">
+                    <span>{{ file.name }}</span>
+                    <a href="{{ file.url }}" target="_blank">Open</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="empty-evidence">No proof was uploaded for this complaint.</p>
+        {% endif %}
+    </div>
+
+    {% set _role = (session.get('admin_role') or '')|upper %}
+    {% if _role in ['SUPER_ADMIN', 'FULL_ACCESS', 'DASHBOARD_EDITOR'] %}
+    <div class="admin-remarks-section"
+        style="margin-top: 24px; background: var(--bg-surface); padding: 24px; border-radius: var(--radius-lg); border: 1px solid var(--border-color);">
+        <h3 style="margin-bottom: 16px; font-size: 1.1rem; color: var(--text-primary);">Admin Remarks & Updates</h3>
+        {% if not is_accepted %}
+        <p class="locked-note">Accept this complaint before updating the complaint status or admin remarks.</p>
+        {% endif %}
+        <textarea id="remarksInput" {% if not is_accepted %}disabled{% endif %}
+            style="width: 100%; min-height: 120px; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-primary); color: var(--text-primary); font-family: inherit; resize: vertical; margin-bottom: 16px;"
+            placeholder="Record actions taken, investigation findings, or progress updates here...">{{ complaint.get('Remarks') or '' }}</textarea>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <span style="font-size: 0.85rem; color: var(--text-secondary);">Last Updated: {{
+                format_datetime(complaint.get('Last Updated Date')) if complaint.get('Last Updated Date') else 'Never'
+                }}</span>
+
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <label
+                    style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; color: var(--text-primary);">
+                    <input type="checkbox" id="notifyComplainantCheckbox" {% if not is_accepted %}disabled{% endif %}
+                        style="cursor: pointer; width: 16px; height: 16px;">
+                    Notify complainant of this update
+                </label>
+                <button id="saveRemarksBtn" class="track-btn" {% if not is_accepted %}disabled{% endif %}
+                    style="padding: 8px 16px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">Save
+                    Remarks</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div id="requestInfoModal" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close"
+                onclick="document.getElementById('requestInfoModal').style.display='none'; document.getElementById('requestInfoModal').classList.remove('active')">&times;</button>
+            <h3>Request More Information</h3>
+            <textarea id="requestMessage" placeholder="Type what info you need..."></textarea>
+            <div class="modal-actions">
+                <button
+                    onclick="document.getElementById('requestInfoModal').style.display='none'; document.getElementById('requestInfoModal').classList.remove('active')">Cancel</button>
+                <button onclick="sendRequestInfo()">Send Request</button>
+            </div>
+        </div>
+    </div>
+    <!-- Edit Overlay Modal -->
+    <div id="editOverlay" class="modal-overlay">
+        <div class="modal-box">
+            <button class="modal-close" onclick="closeEditOverlay()">&times;</button>
+            <h3 id="editOverlayTitle">Edit Field</h3>
+            <div style="margin-top:8px;">
+                <label style="font-weight:600; margin-bottom:6px; display:block;" id="editFieldLabel">Field</label>
+                <input id="editFieldInput" type="text"
+                    style="width:100%; padding:8px; border:1px solid var(--border-color); border-radius:6px;" />
+            </div>
+            <div class="modal-actions" style="margin-top:12px; text-align:right;">
+                <button onclick="closeEditOverlay()">Cancel</button>
+                <button id="editSaveBtn">Save</button>
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+
+    {% block scripts %}
+    <script src="{{ url_for('static', filename='js/complaint_detail.js') }}"></script>
+    {% endblock %}

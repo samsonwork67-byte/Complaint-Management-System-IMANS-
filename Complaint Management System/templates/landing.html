@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integrity & Governance Management System</title>
+  <meta name="description"
+    content="Promoting Integrity, Transparency and Accountability through governance policies, integrity programmes, and complaint management.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+  <!-- ==========================================
+       HEADER & NAVIGATION
+       ========================================== -->
+  <header class="header" id="header">
+    <div class="container">
+      <a href="{{ url_for('landing') }}" class="logo">
+        <!-- Shield Icon -->
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 16l-4-4 1.41-1.41L11 14.17l6.59-6.59L19 9l-8 8z" />
+        </svg>
+        IMANS
+      </a>
+      <nav>
+        <ul class="nav-menu" id="navMenu">
+          <li><a href="#home" class="nav-link active">Home</a></li>
+          <li><a href="#governance" class="nav-link">Governance</a></li>
+          <li><a href="#integrity" class="nav-link">Integrity Strengthening</a></li>
+          <li><a href="#resources" class="nav-link">Resources</a></li>
+          <li><a href="#contact" class="nav-link">Contact</a></li>
+
+          <div class="nav-links">
+            {% if is_admin %}
+                <a href="{{ url_for('admin_dashboard') }}" class="btn btn-primary">Dashboard</a>
+                <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}" class="btn btn-primary">Admin Login</a>
+            {% endif %}
+          </div>
+        </ul>
+      </nav>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- ==========================================
+       HERO / HOME SECTION
+       ========================================== -->
+  <section class="hero" id="home">
+    <div class="container">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <h1>Integrity &<br><span>Governance Management System </span></h1>
+          <p class="hero-subtitle">Promoting Integrity, Transparency and Accountability</p>
+          <p class="hero-desc">
+            Welcome to the official Integrity and Governance Division Management System of Sawit Kinabalu. We are committed to upholding the highest
+            standards of ethical conduct, transparency, and accountability across all operations. Together, we build a
+            culture of trust and compliance.
+          </p>
+          <div class="hero-actions">
+            <a href="{{ url_for('complaint') }}" class="btn btn-primary" id="heroReportBtn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+              Report Complaint
+            </a>
+            <a href="#governance" class="btn btn-secondary" style="color:#fff; border-color: rgba(255,255,255,0.3);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="16" x2="12" y2="12" />
+                <line x1="12" y1="8" x2="12.01" y2="8" />
+              </svg>
+              Learn More
+            </a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <!-- Mission Card -->
+          <div class="statement-card">
+            <div class="statement-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+              </svg>
+            </div>
+            <h3>Our Mission</h3>
+            <p>To foster a culture of integrity, ethical governance, and accountability by implementing robust
+              frameworks, policies, and programmes that prevent misconduct and promote transparency across all levels of
+              the organisation.</p>
+          </div>
+          <!-- Vision Card -->
+          <div class="statement-card">
+            <div class="statement-icon">
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z" />
+              </svg>
+            </div>
+            <h3>Our Vision</h3>
+            <p>To be a leading centre of excellence in organisational integrity and governance, recognised for
+              cultivating an environment where ethical conduct is the standard and where every stakeholder upholds the
+              principles of fairness and responsibility.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       GOVERNANCE SECTION
+       ========================================== -->
+  <section id="governance" class="section-bg-alt">
+    <div class="container">
+      <div class="section-header reveal">
+        <h2>Governance Framework</h2>
+        <p>Access our comprehensive governance documents and policies that guide ethical conduct and organisational
+          compliance.</p>
+      </div>
+
+      <!-- Dynamic grid -->
+      <div id="governanceGrid" class="governance-grid"></div>
+
+      <!-- Admin-only controls -->
+      {% set role = (admin_role or '')|upper %}
+      {% if role in ['LANDING_EDITOR', 'FULL_ACCESS', 'SUPER_ADMIN'] %}
+      <div id="governanceAdminControls" class="admin-controls">
+        <button class="btn btn-primary" onclick="openAddForm()">Add Document</button>
+      </div>
+      {% endif %}
+
+      <!-- Overlay modal -->
+      <div id="addFormOverlay" class="overlay">
+        <div class="overlay-content">
+          <h3>Add Governance Document</h3>
+          <form id="addGovernanceForm" enctype="multipart/form-data">
+            <div class="form-group">
+              <label>Title</label>
+              <input type="text" id="docTitle" name="title" class="form-control" required>
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea id="docDescription" name="description" class="form-control" required></textarea>
+            </div>
+            <div class="form-group">
+              <label>Upload File</label>
+              <input type="file" id="docFile" name="file" class="form-control" required>
+            </div>
+            <div style="margin-top:15px; text-align:right;">
+              <button type="submit" class="btn btn-success">Save</button>
+              <button type="button" class="btn btn-secondary" onclick="closeAddForm()">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       INTEGRITY STRENGTHENING (EVENTS)
+       ========================================== -->
+  <section id="integrity" class="events-section">
+    <div class="container">
+      <div class="section-header reveal">
+        <h2>Integrity Strengthening</h2>
+        <p>Our ongoing programmes and events designed to reinforce a culture of integrity, ethics, and good governance.
+        </p>
+      </div>
+      <div class="events-grid"></div>
+      {% if role in ['LANDING_EDITOR', 'FULL_ACCESS', 'SUPER_ADMIN'] %}
+      <div id="integrityAdminControls" class="admin-controls">
+        <button class="btn btn-primary" onclick="openAddEventForm()">Add Event</button>
+      </div>
+      {% endif %}
+      <div class="view-more-container">
+        <button class="btn btn-primary" onclick="showToast('More events will be added soon. Stay tuned!', 'info')">
+          ...View More Events...
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       STATISTICS DASHBOARD
+       ========================================== -->
+  <section id="statistics" class="section-bg-alt">
+    <div class="container">
+      <div class="section-header reveal">
+        <h2>Complaint Statistics</h2>
+        <p>An overview of complaint management performance and outcomes for the current reporting period.</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card reveal">
+          <div class="stat-number" data-target="120">0</div>
+          <div class="stat-label">Accepted Complaints</div>
+        </div>
+        <div class="stat-card reveal">
+          <div class="stat-number" data-target="95">0</div>
+          <div class="stat-label">Resolved</div>
+        </div>
+        <div class="stat-card reveal">
+          <div class="stat-number" data-target="20">0</div>
+          <div class="stat-label">Ongoing</div>
+        </div>
+        <div class="stat-card reveal">
+          <div class="stat-number" data-target="5">0</div>
+          <div class="stat-label">No Further Action</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       RESOURCES SECTION
+       ========================================== -->
+  <section id="resources">
+    <div class="container">
+      <div class="section-header reveal">
+        <h2>Resources</h2>
+        <p>Download essential guides and reference materials to support your understanding of governance and integrity best practices.</p>
+      </div>
+      <div class="resources-grid"></div>
+    </div>
+</section>
+
+  <!-- ==========================================
+       CONTACT SECTION
+       ========================================== -->
+  <section id="contact" class="section-bg-alt">
+    <div class="container">
+      <div class="section-header reveal">
+        <h2>Contact Us</h2>
+        <p>Reach out to the Integrity and Governance Division for enquiries, guidance, or support.</p>
+      </div>
+      <div class="contact-grid reveal">
+        <div class="contact-info">
+          <h3>Get In Touch</h3>
+          <p>We value your feedback and are committed to addressing your enquiries promptly and confidentially.</p>
+          <div class="contact-details">
+            <div class="contact-item">
+              <div class="contact-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+              </div>
+              <div class="contact-text">
+                <h4>Office Address</h4>
+                <p>Ketua Pegawai Integriti & Governans Divisyen Integriti & Governans (IGD), Ibu Pejabat Kumpulan Sawit
+                  Kinabalu, Tingkat 7, Blok B, Menara Kinabalu, Jalan Sulaman, Teluk Likas, 88400 Kota Kinabalu, Sabah,
+                  Malaysia.</p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path
+                    d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                </svg>
+              </div>
+              <div class="contact-text">
+                <h4>Phone Number</h4>
+                <p>012 - 759 8583</p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <div class="contact-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+              </div>
+              <div class="contact-text">
+                <h4>Email Address</h4>
+                <p>whistleblowing@sawitkinabalu.com.my</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="form-card">
+          <h3 style="font-size: 1.35rem; margin-bottom: 8px;">Give Us Your Feedback</h3>
+          <p style="color: var(--text-medium); margin-bottom: 32px; font-size: 0.95rem;">Fill in the form below and we
+            will respond within 2 working days.</p>
+          <form id="contactForm">
+            <div class="form-group">
+              <label for="contactName">Full Name</label>
+              <input type="text" id="contactName" class="form-control" placeholder="Enter your full name" required>
+            </div>
+            <div class="form-group">
+              <label for="contactEmail">Email Address</label>
+              <input type="email" id="contactEmail" class="form-control" placeholder="Enter your email address"
+                required>
+            </div>
+            <div class="form-group">
+              <label for="contactMessage">Message</label>
+              <textarea id="contactMessage" class="form-control" placeholder="Write your message here..."
+                required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13" />
+                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+              </svg>
+              Send Message
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==========================================
+       FOOTER
+       ========================================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-about">
+          <h3>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="#0d9488"
+              style="display:inline; vertical-align:middle; margin-right:8px;">
+              <path
+                d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 16l-4-4 1.41-1.41L11 14.17l6.59-6.59L19 9l-8 8z" />
+            </svg>
+            IMANS
+          </h3>
+          <p>The Integrity and Governance Division is dedicated to upholding the highest standards of ethical conduct,
+            transparency, and institutional accountability.</p>
+        </div>
+        <div class="footer-links">
+          <h4>Quick Links</h4>
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#governance">Governance</a></li>
+            <li><a href="#integrity">Integrity Strengthening</a></li>
+            <li><a href="#resources">Resources</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="{{ url_for('complaint') }}">Report Complaint</a></li>
+          </ul>
+        </div>
+        <div class="footer-contact">
+          <h4>Contact Info</h4>
+          <p>
+            <svg viewBox="0 0 24 24">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" fill="none" stroke="currentColor"
+                stroke-width="2" />
+              <circle cx="12" cy="10" r="3" fill="none" stroke="currentColor" stroke-width="2" />
+            </svg>Ibu Pejabat Kumpulan Sawit Kinabalu, Tingkat 7, Blok B, Menara Kinabalu, Jalan Sulaman, Teluk Likas, 88400 Kota Kinabalu, Sabah, Malaysia.
+          </p>
+          <p>
+            <svg viewBox="0 0 24 24">
+              <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.362 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.574 2.81.7A2 2 0 0 1 22 16.92z"
+                fill="none" stroke="currentColor" stroke-width="2" />
+            </svg>
+            012 - 759 8583
+          </p>
+          <p>
+            <svg viewBox="0 0 24 24">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" fill="none"
+                stroke="currentColor" stroke-width="2" />
+              <polyline points="22,6 12,13 2,6" fill="none" stroke="currentColor" stroke-width="2" />
+            </svg>
+            whistleblowing@sawitkinabalu.com.my
+          </p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 Integrity & Governance Division. All rights reserved.</p>
+        <p>Committed to ISO 37001 Anti-Bribery Management System</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Modal Overlay (for contact form success) -->
+  <div class="modal-overlay" id="contactModal">
+    <div class="modal-content">
+      <div class="modal-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+      </div>
+      <h3>Message Sent Successfully</h3>
+      <p>Thank you for reaching out. Our team will review your message and respond within 2 working days.</p>
+      <button class="btn btn-primary" onclick="closeModal('contactModal')">Close</button>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/governance.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/resources.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/contact.js') }}"></script>
+</body>
+
+</html>
